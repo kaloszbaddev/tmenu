@@ -6,7 +6,7 @@ tmenu is a clone of dmenu. It’s an experimental tool and likely won’t replac
 
 ```
 $ git clone https://github.com/kaloszbaddev/tmenu.git
-$ cd tui-engine
+$ cd tmenu
 $ sudo make clean install
 ```
 
