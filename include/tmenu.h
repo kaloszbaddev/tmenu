@@ -35,9 +35,9 @@ extern void print_list(struct node *);
 extern void free_list(struct node *);
 
 /* MAIN FUNCTIONS */
-extern int load(const char *); 
+extern int  load(const char *); 
 extern void input(const input_t); 
-extern void init(void); 
+extern int  init(void); 
 extern void update(const input_t); 
 extern void draw(void); 
 extern void run(void);

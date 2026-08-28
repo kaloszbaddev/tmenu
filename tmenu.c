@@ -292,7 +292,7 @@ extern void run(void) {
 
 int main(int argc, char **argv) {
 
-	if ( init() != 0 ) {
+	if ( init() != 1 ) {
 		free_list(root);
 		return 1;
 	}
