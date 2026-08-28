@@ -272,7 +272,7 @@ void draw(void) {
 	free(items);
 }
 
-extern void run(void) {
+void run(void) {
 	pid_t pid = fork();
 
 	if ( pid == -1 ) {
