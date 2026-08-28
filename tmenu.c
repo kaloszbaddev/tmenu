@@ -151,7 +151,7 @@ void input(const input_t key) {
 	data.status = key.value != TUI_ESCAPE && key.value != TUI_ENTER;	
 }
 
-void init(void) {
+int init(void) {
 	const char *path_variable = NULL;	
 
 	if ((path_variable = getenv("PATH")) != NULL ) {
@@ -164,13 +164,15 @@ void init(void) {
 			if ((data.status = load(tok)) != 1 ) {
 				fprintf(stderr, 
 					"failed to load from: %s\n", tok);
-				return;
+				return 0;
 			}
 			tok = strtok(NULL, ":");
 		}
 
 		sort_list(root);
 	}
+
+	return 1;
 }
 
 void update(const input_t key) {
@@ -289,7 +291,11 @@ extern void run(void) {
 }
 
 int main(int argc, char **argv) {
-	init();
+
+	if ( init() != 0 ) {
+		free_list(root);
+		return 1;
+	}
 
 	tui_init();
 
@@ -312,5 +318,5 @@ int main(int argc, char **argv) {
 
 	free_list(root);
 
-	return data.status;
+	return 0;
 }
