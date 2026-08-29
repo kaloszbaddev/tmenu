@@ -9,4 +9,6 @@
 #define BAR_WIDTH 30 /* MENU WIDTH */
 #define MAX_LINES 15 /* NUMBER OF LINES */
 
+static const char *ignored_characters = " ";
+
 #endif

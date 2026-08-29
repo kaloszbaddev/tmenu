@@ -135,8 +135,13 @@ int load(const char *path) {
 }
 
 void input(const input_t key) {
+	int i = 0, len = strlen(ignored_characters);
  	if (key.raw >= ' ' && '~' >= key.raw && bpos < BUFF_SIZE - 1) 
-		buff[bpos++] = (char )key.raw;
+		for (i = 0; i < len; ++i)
+			if ( key.raw == ignored_characters[i] )
+				break;
+		if ( i == len )
+			buff[bpos++] = (char )key.raw;
  	else if (key.value == TUI_BACKSPACE && bpos > 0) 
 		bpos--;
 	
