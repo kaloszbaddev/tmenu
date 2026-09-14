@@ -17,30 +17,35 @@
 	((r) << 24) + ((g) << 16) + ((b) << 8)
 
 #define UNPACK_RGB(n) \
-	(rgb_t) { ((n) >> 24) & 0xFF, ((n) >> 16) & 0xFF, ((n) >> 8) & 0xFF }
+	(vec3i_t) { .x = ((n) >> 24) & 0xFF, .y = ((n) >> 16) & 0xFF, .z = ((n) >> 8) & 0xFF }
 
 #define TUI_BUFF_SIZE 1024
 
-#define TUI_RED     (rgb_t) { 255,   0,   0 }
-#define TUI_GREEN   (rgb_t) {   0, 255,   0 }
-#define TUI_BLUE    (rgb_t) {   0,   0, 255 }
-#define TUI_WHITE   (rgb_t) { 255, 255, 255 }
-#define TUI_BLACK   (rgb_t) {   0,   0,   0 }
-#define TUI_MAGENTA (rgb_t) { 255,   0, 255 }
-#define TUI_AQUA    (rgb_t) {   0, 255, 255 }
-#define TUI_YELLOW  (rgb_t) { 255, 255,   0 }
-#define TUI_ORANGE  (rgb_t) { 255, 165,   0 }
-#define TUI_PURPLE  (rgb_t) { 128,   0, 128 }
-#define TUI_GRAY    (rgb_t) {  36,  36,  36 }
-#define TUI_GREY    (rgb_t) {  36,  36,  36 }
+#define TUI_RED     (vec3i_t) { 255,   0,   0 }
+#define TUI_GREEN   (vec3i_t) {   0, 255,   0 }
+#define TUI_BLUE    (vec3i_t) {   0,   0, 255 }
+#define TUI_WHITE   (vec3i_t) { 255, 255, 255 }
+#define TUI_BLACK   (vec3i_t) {   0,   0,   0 }
+#define TUI_MAGENTA (vec3i_t) { 255,   0, 255 }
+#define TUI_AQUA    (vec3i_t) {   0, 255, 255 }
+#define TUI_YELLOW  (vec3i_t) { 255, 255,   0 }
+#define TUI_ORANGE  (vec3i_t) { 255, 165,   0 }
+#define TUI_PURPLE  (vec3i_t) { 128,   0, 128 }
+#define TUI_GRAY    (vec3i_t) {  36,  36,  36 }
+#define TUI_GREY    (vec3i_t) {  36,  36,  36 }
 
 typedef struct {
 	int x, y;
 } vec2i_t;
 
-typedef struct {
-	unsigned char r, g, b;
-} rgb_t;
+typedef union {
+	struct {
+	  int x;
+	  int y;
+	  int z;
+	};	
+	int raw[3];
+} vec3i_t;
 
 typedef struct {
 	int fg_color, bg_color;
@@ -69,13 +74,13 @@ typedef struct {
 typedef struct {
 	vec2i_t size;
 	vec2i_t pos;
-	rgb_t color;
+	vec3i_t color;
 } rectangle_t;
 
 typedef struct {
 	const char *cstr;
 	vec2i_t pos;
-	rgb_t color;
+	vec3i_t color;
 } text_t;
 
 typedef struct {
@@ -117,6 +122,7 @@ typedef enum {
 	TUI_LEFT,
 	TUI_ESCAPE,
 
+	TUI_TAB = 9,
 	TUI_ENTER = 13,	
 	TUI_SPACE = 32,
 	TUI_BACKSPACE = 127
@@ -133,7 +139,7 @@ void 	tui_exit(void);
 void 	tui_draw(void);
 void 	tui_rectangle(const rectangle_t);
 void 	tui_text(const text_t);
-void    tui_pixel(const int, const int, const char, const rgb_t);
+void    tui_pixel(const int, const int, const char, const vec3i_t);
 void 	tui_resize(void);
 void 	tui_update(void);
 input_t tui_input(void);
@@ -312,10 +318,9 @@ void tui_draw(void) {
 					if ( back_pixel.bg_color == -1 ) {
 						buf_str(&buf, "\x1b[0m");	
 					} else {
-						const rgb_t rgb = UNPACK_RGB(back_pixel.bg_color);	
-
+						const vec3i_t color = UNPACK_RGB(back_pixel.bg_color);	
 						snprintf(to_write, TUI_BUFF_SIZE, 
-							"\x1b[48;2;%d;%d;%dm", rgb.r, rgb.g, rgb.b);
+							"\x1b[48;2;%d;%d;%dm", color.x, color.y, color.z);
 						buf_str(&buf, to_write);
 					}
 
@@ -327,10 +332,9 @@ void tui_draw(void) {
 					     back_pixel.bg_color == -1 ) {
 						buf_str(&buf, "\x1b[0m");
 					} else {
-						const rgb_t rgb = UNPACK_RGB(back_pixel.fg_color);	
-
+						const vec3i_t color = UNPACK_RGB(back_pixel.fg_color);	
 						snprintf(to_write, TUI_BUFF_SIZE, 
-							"\x1b[38;2;%d;%d;%dm", rgb.r, rgb.g, rgb.b);
+							"\x1b[38;2;%d;%d;%dm", color.x, color.y, color.z);
 						buf_str(&buf, to_write);
 					}
 				
@@ -361,7 +365,7 @@ void tui_rectangle(const rectangle_t rec) {
 	for (int y = pos_y; y < end_y && y < window->height; ++y) {
 		for (int x = pos_x; x < end_x && x < window->width; ++x) {
 			pixel_t *pixel  = &window->back_buf[y * window->width + x];
-			pixel->bg_color = PACK_RGB(rec.color.r, rec.color.g, rec.color.b);
+			pixel->bg_color = PACK_RGB(rec.color.x, rec.color.y, rec.color.z);
 			pixel->c = ' ';
 		}
 	}
@@ -381,12 +385,12 @@ void tui_text(const text_t text) {
 
 	for (int x = pos_x; x < end_x && x < window->width; ++x) {
 		pixel_t *pixel = &window->back_buf[pos_y * window->width + x];
-		pixel->fg_color = PACK_RGB(text.color.r, text.color.g, text.color.b);
+		pixel->fg_color = PACK_RGB(text.color.x, text.color.y, text.color.z);
 		pixel->c = *cstr++;
 	}
 }
 
-void tui_pixel(const int x, const int y, const char c, rgb_t color) {
+void tui_pixel(const int x, const int y, const char c, vec3i_t color) {
 	int pos_x = x > 0 ? x : 0 ;	
 	int pos_y = y > 0 ? y : 0 ;
 
@@ -395,9 +399,9 @@ void tui_pixel(const int x, const int y, const char c, rgb_t color) {
 	pixel_t *pixel = &window->back_buf[pos_y * window->width + pos_x];
 
 	if ( c == ' ' ) {
-		pixel->bg_color = PACK_RGB(color.r, color.g, color.b);
+		pixel->bg_color = PACK_RGB(color.x, color.y, color.z);
 	} else {
-		pixel->fg_color = PACK_RGB(color.r, color.g, color.b);	
+		pixel->fg_color = PACK_RGB(color.x, color.y, color.z);	
 	}
 	
 	pixel->c = c;

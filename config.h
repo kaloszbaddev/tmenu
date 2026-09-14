@@ -1,14 +1,17 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#define FG_NORMAL (rgb_t) { 255, 255, 255 }
-#define BG_NORMAL (rgb_t) {  34,  34,  34 }
-#define FG_CURR   (rgb_t) { 255, 255, 255 }
-#define BG_CURR   (rgb_t) {   0,  85, 119 }
+static const char *color_scheme[] = {
+	"#bbbbbb", /* normal foreground */
+	"#222222", /* normal background */
+	"#eeeeee", /* current foreground */
+	"#005577"  /* current background */
+};
 
-#define BAR_WIDTH 30 /* MENU WIDTH */
-#define MAX_LINES 15 /* NUMBER OF LINES */
+static int menu_width  = 30;
+static int lines_count = 10;
 
-static const char *ignored_characters = " ";
+static const char *ignored_characters = " "; 
+static int ignore_case = 0;
 
 #endif
