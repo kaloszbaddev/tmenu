@@ -1,5 +1,3 @@
-# tmenu
-
 ![tmenu](tmenu.png)
 
 tmenu is a clone of dmenu. It’s an experimental tool and likely won’t replace your application launcher, but it’s cool.
