@@ -8,10 +8,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "tui.h"
 #include "tmenu.h"
-#include "config.h"
+#include "tconfig.h"
 
 static char buff[BUFF_SIZE] = {0};
 static struct item *items = NULL;
@@ -31,7 +32,26 @@ static int tmenu_usage(void) {
 				"-w <number>, --width=<number> (change menu width)\n"
 				"-l <number>, --lines=<number> (change lines count)\n"
 				"-i, --ignore-case (treat uppercase and lowercase letters equal)\n"
+				"-d, --dump, (outputs default config)\n"
 				"-h, --help        (show help message)\n");
+	return 0;
+}
+
+static int tmenu_dump(void) {
+	fprintf(stdout, 
+		"#ifndef CONFIG_H_\n"
+		"#define CONFIG_H_\n"
+		"static const char *color_scheme[] = {\n"
+		"	\"#bbbbbb\", /* normal foreground */\n"
+		"	\"#222222\", /* normal background */\n"
+		"	\"#eeeeee\", /* current foreground */\n"
+		"	\"#005577\"  /* current background */\n"
+		"};\n"
+		"static int menu_width = 30;\n"
+		"static int lines_count = 10;\n"
+		"static const char *ignored_characters = \" \";\n" 
+		"static int ignore_case = 0;\n"
+		"#endif");
 	return 0;
 }
 
@@ -388,7 +408,21 @@ void draw(void) {
 	free(items);
 }
 
-void run(void) {
+void launch(void) {
+	struct sigaction sa;
+    sa.sa_handler = SIG_DFL;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+       
+    sigaction(SIGWINCH, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    sigset_t empty_mask;
+    sigemptyset(&empty_mask);
+    sigprocmask(SIG_SETMASK, &empty_mask, NULL);	
+
 	pid_t pid = fork();
 
 	if ( pid == -1 ) {
@@ -399,11 +433,11 @@ void run(void) {
 		char *args[] = { target.sub, NULL };
 		if ( execv(target.value, args) == -1 ) {
 			fprintf(stderr,
-				"cant run: %s\n", target.sub);		
-			exit(1);
+				"cant launch: %s\n", target.sub);		
 		}
+		exit(0);
 	} else 
-		waitpid(pid, 0, 0);	
+		waitpid(pid, 0, 0);
 }
 
 int main(int argc, char *argv[]) {
@@ -420,6 +454,8 @@ int main(int argc, char *argv[]) {
 
 		if ( strcmp("-h", argv[i]) == 0 || strcmp("--help", argv[i]) == 0 )
 			return tmenu_usage();
+		else if ( strcmp("-d", argv[i]) == 0 || strcmp("--dump", argv[i]) == 0 )
+			return tmenu_dump();	
 		else if ( strcmp("-i", argv[i]) == 0 || strcmp("--ignore-case", argv[i]) == 0 ) 
 			ignore_case = 1;
 		else if ( strcmp("-w", argv[i]) == 0 || strncmp("--width=", argv[i], 8) == 0 ) {
@@ -474,8 +510,8 @@ int main(int argc, char *argv[]) {
 
 	tui_exit();
 
-	if ( target.value != NULL )
-		run();
+	if ( target.value )
+		launch();
 
 	free_list(root);
 

@@ -8,10 +8,9 @@ static const char *color_scheme[] = {
 	"#005577"  /* current background */
 };
 
-static int menu_width  = 30;
+static int menu_width = 30;
 static int lines_count = 10;
-
-static const char *ignored_characters = " "; 
+static const char *ignored_characters = " ";
 static int ignore_case = 0;
 
 #endif

@@ -40,6 +40,6 @@ extern void input(const input_t);
 extern int  init(void); 
 extern void update(const input_t); 
 extern void draw(void); 
-extern void run(void);
+extern void launch(void);
 
 #endif

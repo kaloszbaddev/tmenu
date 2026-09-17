@@ -15,7 +15,7 @@ $ sudo make clean install
 ## Options
 ```
 $ tmenu -nf '#ffdd36' -cf '#fafa41' -nb '#f78f25' -cb '#f7bb25' \
-        -w 50 -l 8 -i # tmenu with orange theme
+        -w 40 -l 12 -i # tmenu with orange theme
 ```
 
 ## Uninstall
