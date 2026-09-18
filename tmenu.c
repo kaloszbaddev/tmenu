@@ -38,20 +38,19 @@ static int tmenu_usage(void) {
 }
 
 static int tmenu_dump(void) {
-	fprintf(stdout, 
-		"#ifndef CONFIG_H_\n"
-		"#define CONFIG_H_\n"
-		"static const char *color_scheme[] = {\n"
-		"	\"#bbbbbb\", /* normal foreground */\n"
-		"	\"#222222\", /* normal background */\n"
-		"	\"#eeeeee\", /* current foreground */\n"
-		"	\"#005577\"  /* current background */\n"
-		"};\n"
-		"static int menu_width = 30;\n"
-		"static int lines_count = 10;\n"
-		"static const char *ignored_characters = \" \";\n" 
-		"static int ignore_case = 0;\n"
-		"#endif");
+	fprintf(stdout,	"#ifndef TCONFIG_H_\n"
+				"#define TCONFIG_H_\n"
+				"static const char *color_scheme[] = {\n"
+				"	\"#bbbbbb\", /* normal foreground */\n"
+				"	\"#222222\", /* normal background */\n"
+				"	\"#eeeeee\", /* current foreground */\n"
+				"	\"#005577\"  /* current background */\n"
+				"};\n"
+				"static int menu_width = 30;\n"
+				"static int lines_count = 10;\n"
+				"static const char *ignored_characters = \" \";\n" 
+				"static int ignore_case = 0;\n"
+				"#endif");
 	return 0;
 }
 
