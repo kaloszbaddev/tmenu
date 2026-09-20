@@ -368,9 +368,9 @@ void update(const input_t key) {
 
 void draw(void) {
 	/* SEARCH BAR */
-	char search_bar[BUFF_SIZE];
-	snprintf(search_bar, BUFF_SIZE > menu_width ? menu_width : BUFF_SIZE, 
-				"Search: %s", buff);
+	char search_buff[BUFF_SIZE];
+	snprintf(search_buff, BUFF_SIZE > menu_width ? menu_width : BUFF_SIZE, 
+				" %s", buff);
 
 	tui_rectangle((rectangle_t) {
 		.size = (vec2i_t) { menu_width, 1 },
@@ -379,7 +379,7 @@ void draw(void) {
 	});
 
 	tui_text((text_t) {
-		.cstr = search_bar,	
+		.cstr = search_buff,	
 		.color = color_set[normal_fg],
 		.pos  = (vec2i_t) { 0, 0 }
 	});
@@ -388,7 +388,7 @@ void draw(void) {
 	for (int i = 0; i < ipos && i < lines_count; ++i) {
 		char item_buff[BUFF_SIZE];
 		snprintf(item_buff, BUFF_SIZE > menu_width ? menu_width : BUFF_SIZE, 
-					"%s", items[i + offset].sub);
+					" %s", items[i + offset].sub);
 
 		tui_rectangle((rectangle_t) {
 			.size = (vec2i_t) { menu_width, 1 },
@@ -414,9 +414,9 @@ void launch(void) {
     sigemptyset(&sa.sa_mask);
        
     sigaction(SIGWINCH, &sa, NULL);
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
-    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGINT,   &sa, NULL);
+    sigaction(SIGQUIT,  &sa, NULL);
+    sigaction(SIGTERM,  &sa, NULL);
 
     sigset_t empty_mask;
     sigemptyset(&empty_mask);
@@ -440,7 +440,6 @@ void launch(void) {
 }
 
 int main(int argc, char *argv[]) {
-
 	char *token;
 	int value;
 
