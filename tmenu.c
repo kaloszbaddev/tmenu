@@ -291,6 +291,8 @@ int init(void) {
 		indirect = indirect->next;	
 	}
 
+    menu_width++;
+
 	return 1;
 }
 
@@ -369,7 +371,7 @@ void update(const input_t key) {
 void draw(void) {
 	/* SEARCH BAR */
 	char search_buff[BUFF_SIZE];
-	snprintf(search_buff, BUFF_SIZE > menu_width ? menu_width : BUFF_SIZE, 
+	snprintf(search_buff, BUFF_SIZE > menu_width ? menu_width + 1: BUFF_SIZE, 
 				" %s", buff);
 
 	tui_rectangle((rectangle_t) {
@@ -387,7 +389,7 @@ void draw(void) {
 	/* EXECS BARS */
 	for (int i = 0; i < ipos && i < lines_count; ++i) {
 		char item_buff[BUFF_SIZE];
-		snprintf(item_buff, BUFF_SIZE > menu_width ? menu_width : BUFF_SIZE, 
+		snprintf(item_buff, BUFF_SIZE > menu_width ? menu_width + 1: BUFF_SIZE, 
 					" %s", items[i + offset].sub);
 
 		tui_rectangle((rectangle_t) {
