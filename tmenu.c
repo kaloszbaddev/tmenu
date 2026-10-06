@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "tui.h"
 #include "tmenu.h"
@@ -204,6 +205,8 @@ int load(const char *path) {
 	}
 
 	struct dirent *entry = NULL;	
+    struct stat sb = {0};
+
 	while ( (entry = readdir(dir)) != NULL ) {
 		char full_path[BUFF_SIZE] = { 0 };
 		snprintf(full_path, BUFF_SIZE, "%s/%s", path, entry->d_name);
@@ -212,6 +215,9 @@ int load(const char *path) {
 			if ( strcmp(".", entry->d_name) != 0 && strcmp("..", entry->d_name) != 0 ) 
 				load(full_path);
 		} else {
+            if ( stat(full_path, &sb) == 0 && (sb.st_mode & S_IXUSR) == 0 )
+                continue;
+
 			struct node *indirect = root;
 			while ( indirect != NULL ) {
 				char *str = strrchr(full_path, '/');
