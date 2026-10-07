@@ -33,7 +33,7 @@ static int tmenu_usage(void) {
 				"-w <number>, --width=<number> (change menu width)\n"
 				"-l <number>, --lines=<number> (change lines count)\n"
 				"-i, --ignore-case (treat uppercase and lowercase letters equal)\n"
-				"-d, --dump, (outputs default config)\n"
+				"-dc, --dump-config, (outputs default config)\n"
 				"-h, --help        (show help message)\n");
 	return 0;
 }
@@ -210,26 +210,23 @@ int load(const char *path) {
 	while ( (entry = readdir(dir)) != NULL ) {
 		char full_path[BUFF_SIZE] = { 0 };
 		snprintf(full_path, BUFF_SIZE, "%s/%s", path, entry->d_name);
+    
+        if ( entry->d_type == DT_DIR )
+            continue;
 
-		if ( entry->d_type == DT_DIR ) {
-			if ( strcmp(".", entry->d_name) != 0 && strcmp("..", entry->d_name) != 0 ) 
-				load(full_path);
-		} else {
-            if ( stat(full_path, &sb) == 0 && (sb.st_mode & S_IXUSR) == 0 )
-                continue;
+        if ( stat(full_path, &sb) == 0 && (sb.st_mode & S_IXUSR) == 0 )
+             continue;
 
-			struct node *indirect = root;
-			while ( indirect != NULL ) {
-				char *str = strrchr(full_path, '/');
-				if ( str != NULL && strcmp(++str, indirect->item.sub) == 0 )	
-					break;
-				indirect = indirect->next;
-			}
+	    struct node *indirect = root;
+		while ( indirect != NULL ) {
+			char *str = strrchr(full_path, '/');
+			if ( str != NULL && strcmp(++str, indirect->item.sub) == 0 )	
+				break;
+			indirect = indirect->next;
+		}
 
-			if ( indirect == NULL )
-				push_node(&root, strdup(full_path));
-		} 
-			
+		if ( indirect == NULL )
+			push_node(&root, strdup(full_path));
 	}
 
 	closedir(dir);
@@ -460,7 +457,7 @@ int main(int argc, char *argv[]) {
 
 		if ( strcmp("-h", argv[i]) == 0 || strcmp("--help", argv[i]) == 0 )
 			return tmenu_usage();
-		else if ( strcmp("-d", argv[i]) == 0 || strcmp("--dump", argv[i]) == 0 )
+		else if ( strcmp("-dc", argv[i]) == 0 || strcmp("--dump-config", argv[i]) == 0 )
 			return tmenu_dump();	
 		else if ( strcmp("-i", argv[i]) == 0 || strcmp("--ignore-case", argv[i]) == 0 ) 
 			ignore_case = 1;
